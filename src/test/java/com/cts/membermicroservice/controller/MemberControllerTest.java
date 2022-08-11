@@ -1,4 +1,4 @@
-package com.cts.MemberMicroservice.controller;
+package com.cts.membermicroservice.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

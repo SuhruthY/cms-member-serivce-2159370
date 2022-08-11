@@ -1,4 +1,4 @@
-package com.cts.MemberMicroservice;
+package com.cts.membermicroservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

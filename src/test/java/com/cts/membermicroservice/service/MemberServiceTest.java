@@ -1,4 +1,4 @@
-package com.cts.MemberMicroservice.service;
+package com.cts.membermicroservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
