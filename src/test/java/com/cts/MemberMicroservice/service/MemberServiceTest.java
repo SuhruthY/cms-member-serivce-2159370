@@ -1,27 +1,37 @@
 package com.cts.MemberMicroservice.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cts.membermicroservice.client.AuthClient;
 import com.cts.membermicroservice.client.ClaimClient;
+import com.cts.membermicroservice.entity.Member;
 import com.cts.membermicroservice.entity.MemberPremium;
 import com.cts.membermicroservice.exception.MemberNotFoundException;
 import com.cts.membermicroservice.exception.TokenExpireException;
+import com.cts.membermicroservice.pojo.Bill;
 import com.cts.membermicroservice.repository.MemberPremiumRepository;
+import com.cts.membermicroservice.repository.MemberRepository;
 import com.cts.membermicroservice.service.MemberService;
 
 class MemberServiceTest {
 
 	@Mock
-	MemberPremiumRepository memberRepo;
+	MemberPremiumRepository memberPremiumRepo;
+
+	@Mock
+	MemberRepository memberRepo;
 
 	@Mock
 	ClaimClient claimClient;
@@ -38,13 +48,27 @@ class MemberServiceTest {
 		MockitoAnnotations.initMocks(this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	void testViewBills() throws MemberNotFoundException, TokenExpireException {
 		MemberPremium member1 = new MemberPremium();
 		when(authClient.authorizeTheRequest("@uthoriz@tionToken123")).thenReturn(true);
-		when(memberRepo.save(member1)).thenReturn(member1);
-		when(memberRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
-		assertTrue(service.viewBills("member1", "policy1", "@uthoriz@tionToken123").equals(member1));
+		when(memberPremiumRepo.save(member1)).thenReturn(member1);
+		when(memberPremiumRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
+
+		Member member2 = new Member();
+		when(memberRepo.save(member2)).thenReturn(member2);
+		when(memberRepo.findById("member1")).thenReturn(Optional.of(member2));
+
+		assertThat(service.viewBills("member1", "policy1", "@uthoriz@tionToken123")).usingRecursiveComparison()
+				.isEqualTo(Bill.builder().member(member2).policyId(member1.getPolicyId())
+						.lastPaidDate(member1.getLastPaidDate()).dueDate(member1.getDueDate())
+						.premiumDue(member1.getPremiumDue()).lateCharges(member1.getLateCharges()).build());
+
+//		assertEquals(service.viewBills("member1", "policy1", "@uthoriz@tionToken123"),
+//				Bill.builder().member(member2).policyId(member1.getPolicyId()).lastPaidDate(member1.getLastPaidDate())
+//						.dueDate(member1.getDueDate()).premiumDue(member1.getPremiumDue())
+//						.lateCharges(member1.getLateCharges()).build());
 
 	}
 
@@ -52,8 +76,8 @@ class MemberServiceTest {
 	void testViewBillsMemberNotFonund() throws MemberNotFoundException, TokenExpireException {
 		MemberPremium member1 = new MemberPremium();
 		when(authClient.authorizeTheRequest("@uthoriz@tionToken123")).thenReturn(true);
-		when(memberRepo.save(member1)).thenReturn(member1);
-		when(memberRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
+		when(memberPremiumRepo.save(member1)).thenReturn(member1);
+		when(memberPremiumRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
 		assertThrows(MemberNotFoundException.class, () -> {
 			service.viewBills("member1", "policy2", "@uthoriz@tionToken123");
 		});
@@ -66,8 +90,8 @@ class MemberServiceTest {
 	void testViewBillsTokenExpire() throws MemberNotFoundException, TokenExpireException {
 		MemberPremium member1 = new MemberPremium();
 		when(authClient.authorizeTheRequest("@uthoriz@tionToken123")).thenReturn(true);
-		when(memberRepo.save(member1)).thenReturn(member1);
-		when(memberRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
+		when(memberPremiumRepo.save(member1)).thenReturn(member1);
+		when(memberPremiumRepo.findByMemberIdAndPolicyId("member1", "policy1")).thenReturn(member1);
 		assertThrows(TokenExpireException.class, () -> {
 			service.viewBills("member1", "policy2", "wrongToken");
 		});

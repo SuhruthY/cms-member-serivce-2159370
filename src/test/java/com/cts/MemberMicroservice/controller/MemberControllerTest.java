@@ -42,7 +42,7 @@ class MemberControllerTest {
 	@Test
 	void testViewBills() throws Exception {
 		when(authClient.authorizeTheRequest("@uthoriz@tionToken123")).thenReturn(true);
-		this.mockMvc.perform(get("/viewbills/{memberId}", 22).header("Authorization", "@uthoriz@tionToken123"))
+		this.mockMvc.perform(get("/viewbills/{memberId}/{policyId}", 1, 2).header("Authorization", "@uthoriz@tionToken123"))
 				.andExpect(status().isOk());
 	}
 

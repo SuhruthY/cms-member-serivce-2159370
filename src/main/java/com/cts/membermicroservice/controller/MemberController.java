@@ -25,8 +25,8 @@ public class MemberController {
 	@Autowired
 	MemberService service;
 
-	@GetMapping("/viewbills")
-	public Bill viewBills(@RequestParam("memberId") String memberId, @RequestParam("policyId") String policyId,
+	@GetMapping("/viewbills/{memberId}/{policyId}")
+	public Bill viewBills(@PathVariable("memberId") String memberId, @PathVariable("policyId") String policyId,
 			@RequestHeader("Authorization") String token) throws MemberNotFoundException, TokenExpireException {
 		return service.viewBills(memberId, policyId, token);
 	}

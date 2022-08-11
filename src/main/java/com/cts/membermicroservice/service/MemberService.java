@@ -1,10 +1,13 @@
 package com.cts.membermicroservice.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cts.membermicroservice.client.AuthClient;
 import com.cts.membermicroservice.client.ClaimClient;
+import com.cts.membermicroservice.entity.Member;
 import com.cts.membermicroservice.entity.MemberPremium;
 import com.cts.membermicroservice.exception.ClaimNotFoundException;
 import com.cts.membermicroservice.exception.MemberNotFoundException;
@@ -21,7 +24,7 @@ public class MemberService {
 
 	@Autowired
 	MemberPremiumRepository memberPremiumRepo;
-	
+
 	@Autowired
 	MemberRepository memberRepo;
 
@@ -30,22 +33,22 @@ public class MemberService {
 
 	@Autowired
 	AuthClient authClient;
-	
+
 	public Bill viewBills(String memberId, String policyId, String token)
 			throws MemberNotFoundException, TokenExpireException {
 		if (authClient.authorizeTheRequest(token)) {
-			MemberPremium member = memberPremiumRepo.findByMemberIdAndPolicyId(memberId, policyId);
-			
-			if (member == null) {
+			MemberPremium memberPremium = memberPremiumRepo.findByMemberIdAndPolicyId(memberId, policyId);
+
+			if (memberPremium == null) {
 				throw new MemberNotFoundException("Member not found");
 			} else {
-				return Bill.builder()
-						.member(memberRepo.findById(memberId).get())
-						.policyId(member.getPolicyId())
-						.lastPaidDate(member.getLastPaidDate())
-						.dueDate(member.getDueDate())
-						.premiumDue(member.getPremiumDue())
-						.lateCharges(member.getLateCharges()).build();
+				Optional<Member> member = memberRepo.findById(memberId);
+				if(!member.isPresent()) {
+					throw new MemberNotFoundException("Member not found");
+				}
+				return Bill.builder().member(member.get()).policyId(memberPremium.getPolicyId())
+						.lastPaidDate(memberPremium.getLastPaidDate()).dueDate(memberPremium.getDueDate())
+						.premiumDue(memberPremium.getPremiumDue()).lateCharges(memberPremium.getLateCharges()).build();
 			}
 		} else {
 			throw new TokenExpireException("Token is expired");
