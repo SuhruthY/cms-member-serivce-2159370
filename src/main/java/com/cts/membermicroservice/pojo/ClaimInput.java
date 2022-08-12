@@ -6,12 +6,13 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ClaimInput {
-
-	private String policyBenefits;
-	private String hospitalName;
-	private Integer benefitsAvailed;
-	private Integer amount;
-	private Integer policyId;
-	private String policyName;
+	
+	public String policyId;
+	public String claimBenefit;
+	public String hospitalId;
+	public Integer benefitAvailed;
+	public Integer amtClaimed;
+	public String memberId;
+	private String benefitId;
 
 }

@@ -1,7 +1,6 @@
 package com.cts.membermicroservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cts.membermicroservice.client.AuthClient;
 import com.cts.membermicroservice.client.ClaimClient;
@@ -23,7 +21,6 @@ import com.cts.membermicroservice.exception.TokenExpireException;
 import com.cts.membermicroservice.pojo.Bill;
 import com.cts.membermicroservice.repository.MemberPremiumRepository;
 import com.cts.membermicroservice.repository.MemberRepository;
-import com.cts.membermicroservice.service.MemberService;
 
 class MemberServiceTest {
 
@@ -48,7 +45,6 @@ class MemberServiceTest {
 		MockitoAnnotations.initMocks(this);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	void testViewBills() throws MemberNotFoundException, TokenExpireException {
 		MemberPremium member1 = new MemberPremium();

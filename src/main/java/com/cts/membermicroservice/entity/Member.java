@@ -1,5 +1,9 @@
 package com.cts.membermicroservice.entity;
 
+import static com.cts.membermicroservice.service.CustomIdGenerator.NUMBER_FORMAT_PARAMETER;
+import static com.cts.membermicroservice.service.CustomIdGenerator.VALUE_PREFIX_PARAMETER;
+import static org.hibernate.id.enhanced.SequenceStyleGenerator.INCREMENT_PARAM;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,8 +12,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-
-import com.cts.membermicroservice.service.CustomIdGenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,9 +31,9 @@ public class Member {
         name = "member_seq", 
         strategy = "com.cts.membermicroservice.service.CustomIdGenerator", 
         parameters = {
-            @Parameter(name = CustomIdGenerator.INCREMENT_PARAM, value = "1"),
-            @Parameter(name = CustomIdGenerator.VALUE_PREFIX_PARAMETER, value = "CMS_M"),
-            @Parameter(name = CustomIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%03d") })
+            @Parameter(name = INCREMENT_PARAM, value = "1"),
+            @Parameter(name = VALUE_PREFIX_PARAMETER, value = "CMS_M"),
+            @Parameter(name = NUMBER_FORMAT_PARAMETER, value = "%03d") })
 	private String id;
 	private String name;
 	private String gender;

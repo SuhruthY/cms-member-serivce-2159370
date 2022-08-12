@@ -1,0 +1,3 @@
+com\cts\membermicroservice\controller\MemberControllerTest.class
+com\cts\membermicroservice\MemberMicroserviceApplicationTests.class
+com\cts\membermicroservice\service\MemberServiceTest.class

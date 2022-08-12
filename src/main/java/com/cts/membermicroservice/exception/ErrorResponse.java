@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 public class ErrorResponse {
 	private Integer statusCode;
-	private String StatusMsg;
+	private String statusMsg;
 	private LocalDateTime statusDate;
 
 }

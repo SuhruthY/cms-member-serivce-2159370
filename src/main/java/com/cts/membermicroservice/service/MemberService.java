@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.cts.membermicroservice.client.AuthClient;
 import com.cts.membermicroservice.client.ClaimClient;
@@ -16,6 +19,7 @@ import com.cts.membermicroservice.exception.TokenExpireException;
 import com.cts.membermicroservice.pojo.Bill;
 import com.cts.membermicroservice.pojo.Claim;
 import com.cts.membermicroservice.pojo.ClaimInput;
+import com.cts.membermicroservice.pojo.ClaimStatusOutput;
 import com.cts.membermicroservice.repository.MemberPremiumRepository;
 import com.cts.membermicroservice.repository.MemberRepository;
 
@@ -55,17 +59,28 @@ public class MemberService {
 		}
 	}
 
-	public Claim getClaimStatus(Integer claimId) throws ClaimNotFoundException {
-		Claim claim = claimClient.getClaimStatus(claimId);
-		if (claim == null)
+	public ClaimStatusOutput getClaimStatus(String claimId, String token) throws ClaimNotFoundException {
+		ClaimStatusOutput claimStatusOutput = null;
+		try {
+			claimStatusOutput = claimClient.getClaimStatus(claimId, token);
+		} catch (MissingRequestHeaderException | ClaimNotFoundException | TokenExpireException e) {
+			e.printStackTrace();
+		}
+		if (claimStatusOutput == null)
 			throw new ClaimNotFoundException("Claim not found");
 		else
-			return claim;
+			return claimStatusOutput;
 	}
 
-	public Claim submitClaim(ClaimInput claimInput) throws PolicyNotFoundException {
-		Claim claim = claimClient.submitClaim(claimInput);
-		return claim;
+	public Claim submitClaim(ClaimInput claimInput, String token) throws PolicyNotFoundException {
+		Claim submitClaim;
+		try {
+			submitClaim = claimClient.submitClaim(claimInput, token);
+			return submitClaim;
+		} catch (PolicyNotFoundException | TokenExpireException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

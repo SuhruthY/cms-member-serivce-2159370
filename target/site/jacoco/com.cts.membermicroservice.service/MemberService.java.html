@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MemberService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Member-Microservice</a> &gt; <a href="index.source.html" class="el_package">com.cts.membermicroservice.service</a> &gt; <span class="el_source">MemberService.java</span></div><h1>MemberService.java</h1><pre class="source lang-java linenums">package com.cts.membermicroservice.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import com.cts.membermicroservice.client.AuthClient;
+import com.cts.membermicroservice.client.ClaimClient;
+import com.cts.membermicroservice.entity.Member;
+import com.cts.membermicroservice.entity.MemberPremium;
+import com.cts.membermicroservice.exception.ClaimNotFoundException;
+import com.cts.membermicroservice.exception.MemberNotFoundException;
+import com.cts.membermicroservice.exception.PolicyNotFoundException;
+import com.cts.membermicroservice.exception.TokenExpireException;
+import com.cts.membermicroservice.pojo.Bill;
+import com.cts.membermicroservice.pojo.Claim;
+import com.cts.membermicroservice.pojo.ClaimInput;
+import com.cts.membermicroservice.pojo.ClaimStatusOutput;
+import com.cts.membermicroservice.repository.MemberPremiumRepository;
+import com.cts.membermicroservice.repository.MemberRepository;
+
+@Service
+<span class="fc" id="L27">public class MemberService {</span>
+
+	@Autowired
+	MemberPremiumRepository memberPremiumRepo;
+
+	@Autowired
+	MemberRepository memberRepo;
+
+	@Autowired
+	ClaimClient claimClient;
+
+	@Autowired
+	AuthClient authClient;
+
+	public Bill viewBills(String memberId, String policyId, String token)
+			throws MemberNotFoundException, TokenExpireException {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		if (authClient.authorizeTheRequest(token)) {</span>
+<span class="fc" id="L44">			MemberPremium memberPremium = memberPremiumRepo.findByMemberIdAndPolicyId(memberId, policyId);</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">			if (memberPremium == null) {</span>
+<span class="fc" id="L47">				throw new MemberNotFoundException(&quot;Member not found&quot;);</span>
+			} else {
+<span class="fc" id="L49">				Optional&lt;Member&gt; member = memberRepo.findById(memberId);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">				if(!member.isPresent()) {</span>
+<span class="nc" id="L51">					throw new MemberNotFoundException(&quot;Member not found&quot;);</span>
+				}
+<span class="fc" id="L53">				return Bill.builder().member(member.get()).policyId(memberPremium.getPolicyId())</span>
+<span class="fc" id="L54">						.lastPaidDate(memberPremium.getLastPaidDate()).dueDate(memberPremium.getDueDate())</span>
+<span class="fc" id="L55">						.premiumDue(memberPremium.getPremiumDue()).lateCharges(memberPremium.getLateCharges()).build();</span>
+			}
+		} else {
+<span class="fc" id="L58">			throw new TokenExpireException(&quot;Token is expired&quot;);</span>
+		}
+	}
+
+	public ClaimStatusOutput getClaimStatus(String claimId, String token) throws ClaimNotFoundException {
+<span class="nc" id="L63">		ClaimStatusOutput claimStatusOutput = null;</span>
+		try {
+<span class="nc" id="L65">			claimStatusOutput = claimClient.getClaimStatus(claimId, token);</span>
+<span class="nc" id="L66">		} catch (MissingRequestHeaderException | ClaimNotFoundException | TokenExpireException e) {</span>
+<span class="nc" id="L67">			e.printStackTrace();</span>
+<span class="nc" id="L68">		}</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (claimStatusOutput == null)</span>
+<span class="nc" id="L70">			throw new ClaimNotFoundException(&quot;Claim not found&quot;);</span>
+		else
+<span class="nc" id="L72">			return claimStatusOutput;</span>
+	}
+
+	public Claim submitClaim(ClaimInput claimInput, String token) throws PolicyNotFoundException {
+		Claim submitClaim;
+		try {
+<span class="nc" id="L78">			submitClaim = claimClient.submitClaim(claimInput, token);</span>
+<span class="nc" id="L79">			return submitClaim;</span>
+<span class="nc" id="L80">		} catch (PolicyNotFoundException | TokenExpireException e) {</span>
+<span class="nc" id="L81">			e.printStackTrace();</span>
+		}
+<span class="nc" id="L83">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

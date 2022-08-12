@@ -12,6 +12,7 @@ E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\repo
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\exception\ClaimNotFoundException.java
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\client\ClaimClient.java
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\config\SwaggerConfig.java
+E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\pojo\ClaimStatusOutput.java
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\exception\ErrorResponse.java
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\pojo\Claim.java
 E:\STSWorkspace\cms-member-service\src\main\java\com\cts\membermicroservice\exception\GlobalExceptionHandler.java
