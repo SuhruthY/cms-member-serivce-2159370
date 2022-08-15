@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MemberController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Member-Microservice</a> &gt; <a href="index.source.html" class="el_package">com.cts.membermicroservice.controller</a> &gt; <span class="el_source">MemberController.java</span></div><h1>MemberController.java</h1><pre class="source lang-java linenums">package com.cts.membermicroservice.controller;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,36 +17,83 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cts.membermicroservice.exception.ClaimNotFoundException;
 import com.cts.membermicroservice.exception.MemberNotFoundException;
 import com.cts.membermicroservice.exception.PolicyNotFoundException;
+import com.cts.membermicroservice.exception.PremiumNotFoundException;
 import com.cts.membermicroservice.exception.TokenExpireException;
-import com.cts.membermicroservice.pojo.Bill;
 import com.cts.membermicroservice.pojo.Claim;
 import com.cts.membermicroservice.pojo.ClaimInput;
-import com.cts.membermicroservice.pojo.ClaimStatusOutput;
+import com.cts.membermicroservice.pojo.MemberClaim;
+import com.cts.membermicroservice.pojo.MemberPremium;
 import com.cts.membermicroservice.service.MemberService;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * A class for controlling request mappings
+ * @author SuhruthY
+ */
 @CrossOrigin
 @RestController
-<span class="fc" id="L25">public class MemberController {</span>
+<span class="fc" id="L36">@Slf4j</span>
+<span class="fc" id="L37">public class MemberController {</span>
 	@Autowired
 	MemberService service;
-
+	
+	/**
+	 * This request mapping is for viewing bill details of specific member and policy
+	 * @param memberId - unique string to identify a member
+	 * @param policyId - unique string to identify a policy
+	 * @param token - jwt to verify
+	 * @return bill with member details - status code 200
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws PremiumNotFoundException
+	 * @throws TokenExpireException
+	 * @throws MemberNotFoundException
+	 */
 	@GetMapping(&quot;/viewBills/{memberId}/{policyId}&quot;)
-	public Bill viewBills(@PathVariable(&quot;memberId&quot;) String memberId, @PathVariable(&quot;policyId&quot;) String policyId,
-			@RequestHeader(&quot;Authorization&quot;) String token) throws MemberNotFoundException, TokenExpireException {
-<span class="nc" id="L32">		return service.viewBills(memberId, policyId, token);</span>
+	public ResponseEntity&lt;MemberPremium&gt; viewBills(@PathVariable(&quot;memberId&quot;) String memberId,
+			@PathVariable(&quot;policyId&quot;) String policyId, @RequestHeader(&quot;Authorization&quot;) String token)
+			throws IllegalAccessException, InvocationTargetException, PremiumNotFoundException, TokenExpireException,
+			MemberNotFoundException {
+<span class="fc" id="L58">		log.info(&quot;MemberController.viewBills: returns bill details of a member by policyId&quot;);</span>
+<span class="fc" id="L59">		return ResponseEntity.ok(service.viewBills(memberId, policyId, token));</span>
 	}
-
-	@GetMapping(&quot;/getClaimStatus/{claimId}&quot;)
-	public ClaimStatusOutput getClaimStatus(@PathVariable(&quot;claimId&quot;) String claimId,
-			@RequestHeader(&quot;Authorization&quot;) String token)
-			throws ClaimNotFoundException, TokenExpireException, MissingRequestHeaderException {
-<span class="nc" id="L39">		return service.getClaimStatus(claimId, token);</span>
+	
+	/**
+	 * This request mapping is for retrieving status of specific claim
+	 * @param memberId - unique string to identify a member
+	 * @param claimId - unique string to identify a claim
+	 * @param token - jwt to verify
+	 * @return claim status with member details - status code 200
+	 * @throws MissingRequestHeaderException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws ClaimNotFoundException
+	 * @throws TokenExpireException
+	 * @throws MemberNotFoundException
+	 */
+	@GetMapping(&quot;/getClaimStatus/{memberId}/{claimId}&quot;)
+	public ResponseEntity&lt;MemberClaim&gt; getClaimStatus(@PathVariable(&quot;memberId&quot;) String memberId,
+			@PathVariable(&quot;claimId&quot;) String claimId, @RequestHeader(&quot;Authorization&quot;) String token)
+			throws MissingRequestHeaderException, IllegalAccessException, InvocationTargetException,
+			ClaimNotFoundException, TokenExpireException, MemberNotFoundException {
+<span class="fc" id="L80">		log.info(&quot;MemberController.getClaimStatus: returns claim status with member details&quot;);</span>
+<span class="fc" id="L81">		return ResponseEntity.ok(service.getClaimStatus(claimId, memberId, token));</span>
 	}
-
+	
+	/**
+	 * This request mapping is for creating a new claim
+	 * @param claim - calim details as request body
+	 * @param token - jwt to verify
+	 * @return new claim created - status code 201
+	 * @throws PolicyNotFoundException
+	 * @throws TokenExpireException
+	 */
 	@PostMapping(value = &quot;/submitClaim&quot;)
-	public Claim submitClaim(@RequestBody ClaimInput claim, @RequestHeader(&quot;Authorization&quot;) String token)
-			throws PolicyNotFoundException, TokenExpireException {
-<span class="nc" id="L45">		return service.submitClaim(claim, token);</span>
+	public ResponseEntity&lt;Claim&gt; submitClaim(@RequestBody ClaimInput claim,
+			@RequestHeader(&quot;Authorization&quot;) String token) throws PolicyNotFoundException, TokenExpireException {
+<span class="fc" id="L95">		log.info(&quot;MemberController.submitClaim: creates a new claim with specified details&quot;);</span>
+<span class="fc" id="L96">		return ResponseEntity.status(HttpStatus.CREATED).body(service.submitClaim(claim, token));</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

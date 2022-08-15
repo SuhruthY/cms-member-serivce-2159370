@@ -15,15 +15,35 @@ import com.cts.membermicroservice.pojo.Claim;
 import com.cts.membermicroservice.pojo.ClaimInput;
 import com.cts.membermicroservice.pojo.ClaimStatusOutput;
 
-@FeignClient(url = "${claim.url}", name = "claimapp")
+/**
+ * A proxy class for calling cms-claim-service
+ * @author SuhruthY
+ */
+@FeignClient(url = "${claim.url}", name = "cms-claim-service")
 public interface ClaimClient {
-
-	@GetMapping(value = "/getClaimStatus/{claimId}")
+	/**
+	 * This method gives the status for a given claim
+	 * @param claimId - unique string to identify a claim
+	 * @param token - jwt to verify
+	 * @return claim status and description parameters
+	 * @throws ClaimNotFoundException
+	 * @throws TokenExpireException
+	 * @throws MissingRequestHeaderException
+	 */
+	@GetMapping("/getClaimStatus/{claimId}")
 	public ClaimStatusOutput getClaimStatus(@PathVariable("claimId") String claimId,
 			@RequestHeader("Authorization") String token)
 			throws ClaimNotFoundException, TokenExpireException, MissingRequestHeaderException;
-
-	@PostMapping(value = "/submitClaim")
+	
+	/**
+	 * This method creates new claim 
+	 * @param claim - calim details as request body
+	 * @param token - jwt to verify
+	 * @return created claim 
+	 * @throws PolicyNotFoundException
+	 * @throws TokenExpireException
+	 */
+	@PostMapping("/submitClaim")
 	public Claim submitClaim(@RequestBody ClaimInput claim, @RequestHeader("Authorization") String token)
 			throws PolicyNotFoundException, TokenExpireException;
 }

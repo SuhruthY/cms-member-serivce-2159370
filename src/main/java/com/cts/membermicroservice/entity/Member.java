@@ -18,27 +18,27 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * A entity class for determine type of storage
+ * @author SuhruthY
+ */
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="Member")
+@Table(name = "Member")
 public class Member {
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_seq")
-    @GenericGenerator(
-        name = "member_seq", 
-        strategy = "com.cts.membermicroservice.service.CustomIdGenerator", 
-        parameters = {
-            @Parameter(name = INCREMENT_PARAM, value = "1"),
-            @Parameter(name = VALUE_PREFIX_PARAMETER, value = "CMS_M"),
-            @Parameter(name = NUMBER_FORMAT_PARAMETER, value = "%03d") })
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_seq")
+	@GenericGenerator(name = "member_seq", strategy = "com.cts.membermicroservice.service.CustomIdGenerator", parameters = {
+			@Parameter(name = INCREMENT_PARAM, value = "1"),
+			@Parameter(name = VALUE_PREFIX_PARAMETER, value = "CMS_M"),
+			@Parameter(name = NUMBER_FORMAT_PARAMETER, value = "%03d") })
 	private String id;
 	private String name;
 	private String gender;
 	private int age;
 	private long phno;
 	private String email;
-
 }
