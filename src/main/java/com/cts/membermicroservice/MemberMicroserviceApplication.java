@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -63,13 +62,6 @@ public class MemberMicroserviceApplication {
 			map.put(memberDataColumnNames.get(5), "email");
 			
 			mappingStrategy = new HeaderColumnNameTranslateMappingStrategy();
-//			mappingStrategy.setColumnMapping(Map.of(
-//					memberDataColumnNames.get(0), "id", 
-//					memberDataColumnNames.get(1), "name", 
-//					memberDataColumnNames.get(2), "gender", 
-//					memberDataColumnNames.get(3), "age",
-//					memberDataColumnNames.get(4), "phno", 
-//					memberDataColumnNames.get(5), "email"));
 			mappingStrategy.setColumnMapping(map);
 			mappingStrategy.setType(Member.class);
 
@@ -88,14 +80,6 @@ public class MemberMicroserviceApplication {
 			map.put(premiumDataColumnNames.get(6), "lateCharges");
 			
 			mappingStrategy = new HeaderColumnNameTranslateMappingStrategy();
-//			mappingStrategy.setColumnMapping(Map.of(
-//					premiumDataColumnNames.get(0), "id", 
-//					premiumDataColumnNames.get(1), "memberId", 
-//					premiumDataColumnNames.get(2), "policyId",
-//					premiumDataColumnNames.get(3), "lastPaidDate", 
-//					premiumDataColumnNames.get(4), "dueDate", 
-//					premiumDataColumnNames.get(5), "premiumDue",
-//					premiumDataColumnNames.get(6), "lateCharges"));
 			mappingStrategy.setColumnMapping(map);
 			mappingStrategy.setType(Premium.class);
 			
