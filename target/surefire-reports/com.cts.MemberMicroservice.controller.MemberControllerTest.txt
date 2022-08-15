@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.cts.membermicroservice.controller.MemberControllerTest
--------------------------------------------------------------------------------
-Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 29.589 s - in com.cts.membermicroservice.controller.MemberControllerTest

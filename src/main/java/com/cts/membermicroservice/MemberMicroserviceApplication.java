@@ -3,6 +3,7 @@ package com.cts.membermicroservice;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,18 +49,28 @@ public class MemberMicroserviceApplication {
 	@Bean
 	CommandLineRunner run(MemberRepository memberRepo, PremiumRepository premiumRepo) {
 		return args -> {
-
+			
+			HashMap<String, String> map;
 			HeaderColumnNameTranslateMappingStrategy mappingStrategy;
 			
 			// maps cms_member.csv headers to Member.class properties
+			map = new HashMap<String, String>();
+			map.put(memberDataColumnNames.get(0), "id");
+			map.put(memberDataColumnNames.get(1), "name");
+			map.put(memberDataColumnNames.get(2), "gender");
+			map.put(memberDataColumnNames.get(3), "age");
+			map.put(memberDataColumnNames.get(4), "phno");
+			map.put(memberDataColumnNames.get(5), "email");
+			
 			mappingStrategy = new HeaderColumnNameTranslateMappingStrategy();
-			mappingStrategy.setColumnMapping(Map.of(
-					memberDataColumnNames.get(0), "id", 
-					memberDataColumnNames.get(1), "name", 
-					memberDataColumnNames.get(2), "gender", 
-					memberDataColumnNames.get(3), "age",
-					memberDataColumnNames.get(4), "phno", 
-					memberDataColumnNames.get(5), "email"));
+//			mappingStrategy.setColumnMapping(Map.of(
+//					memberDataColumnNames.get(0), "id", 
+//					memberDataColumnNames.get(1), "name", 
+//					memberDataColumnNames.get(2), "gender", 
+//					memberDataColumnNames.get(3), "age",
+//					memberDataColumnNames.get(4), "phno", 
+//					memberDataColumnNames.get(5), "email"));
+			mappingStrategy.setColumnMapping(map);
 			mappingStrategy.setType(Member.class);
 
 			memberRepo.saveAll(new CsvToBeanBuilder(
@@ -67,15 +78,25 @@ public class MemberMicroserviceApplication {
 					.withType(Member.class).withMappingStrategy(mappingStrategy).build().parse());
 			
 			// maps cms_member_premium.csv headers to Premium.class properties
+			map = new HashMap<String, String>();
+			map.put(premiumDataColumnNames.get(0), "id");
+			map.put(premiumDataColumnNames.get(1), "memberId");
+			map.put(premiumDataColumnNames.get(2), "policyId");
+			map.put(premiumDataColumnNames.get(3), "lastPaidDate");
+			map.put(premiumDataColumnNames.get(4), "dueDate");
+			map.put(premiumDataColumnNames.get(5), "premiumDue");
+			map.put(premiumDataColumnNames.get(6), "lateCharges");
+			
 			mappingStrategy = new HeaderColumnNameTranslateMappingStrategy();
-			mappingStrategy.setColumnMapping(Map.of(
-					premiumDataColumnNames.get(0), "id", 
-					premiumDataColumnNames.get(1), "memberId", 
-					premiumDataColumnNames.get(2), "policyId",
-					premiumDataColumnNames.get(3), "lastPaidDate", 
-					premiumDataColumnNames.get(4), "dueDate", 
-					premiumDataColumnNames.get(5), "premiumDue",
-					premiumDataColumnNames.get(6), "lateCharges"));
+//			mappingStrategy.setColumnMapping(Map.of(
+//					premiumDataColumnNames.get(0), "id", 
+//					premiumDataColumnNames.get(1), "memberId", 
+//					premiumDataColumnNames.get(2), "policyId",
+//					premiumDataColumnNames.get(3), "lastPaidDate", 
+//					premiumDataColumnNames.get(4), "dueDate", 
+//					premiumDataColumnNames.get(5), "premiumDue",
+//					premiumDataColumnNames.get(6), "lateCharges"));
+			mappingStrategy.setColumnMapping(map);
 			mappingStrategy.setType(Premium.class);
 			
 			premiumRepo.saveAll(new CsvToBeanBuilder(
