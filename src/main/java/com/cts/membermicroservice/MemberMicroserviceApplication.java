@@ -53,7 +53,7 @@ public class MemberMicroserviceApplication {
 			HeaderColumnNameTranslateMappingStrategy mappingStrategy;
 			
 			// maps cms_member.csv headers to Member.class properties
-			map = new HashMap<String, String>();
+			map = new HashMap<>();
 			map.put(memberDataColumnNames.get(0), "id");
 			map.put(memberDataColumnNames.get(1), "name");
 			map.put(memberDataColumnNames.get(2), "gender");
@@ -70,7 +70,7 @@ public class MemberMicroserviceApplication {
 					.withType(Member.class).withMappingStrategy(mappingStrategy).build().parse());
 			
 			// maps cms_member_premium.csv headers to Premium.class properties
-			map = new HashMap<String, String>();
+			map = new HashMap<>();
 			map.put(premiumDataColumnNames.get(0), "id");
 			map.put(premiumDataColumnNames.get(1), "memberId");
 			map.put(premiumDataColumnNames.get(2), "policyId");

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MemberService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Member-Microservice</a> &gt; <a href="index.source.html" class="el_package">com.cts.membermicroservice.service</a> &gt; <span class="el_source">MemberService.java</span></div><h1>MemberService.java</h1><pre class="source lang-java linenums">package com.cts.membermicroservice.service;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingRequestHeaderException;
+
+import com.cts.membermicroservice.client.AuthClient;
+import com.cts.membermicroservice.client.ClaimClient;
+import com.cts.membermicroservice.entity.Member;
+import com.cts.membermicroservice.entity.Premium;
+import com.cts.membermicroservice.exception.ClaimNotFoundException;
+import com.cts.membermicroservice.exception.MemberNotFoundException;
+import com.cts.membermicroservice.exception.PolicyNotFoundException;
+import com.cts.membermicroservice.exception.PremiumNotFoundException;
+import com.cts.membermicroservice.exception.TokenExpireException;
+import com.cts.membermicroservice.pojo.Claim;
+import com.cts.membermicroservice.pojo.ClaimInput;
+import com.cts.membermicroservice.pojo.ClaimStatusOutput;
+import com.cts.membermicroservice.pojo.MemberClaim;
+import com.cts.membermicroservice.pojo.MemberPremium;
+import com.cts.membermicroservice.repository.MemberRepository;
+import com.cts.membermicroservice.repository.PremiumRepository;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * A service class for defining all util methods for controller
+ * @author SuhruthY
+ */
+@Service
+<span class="fc" id="L35">@Slf4j</span>
+<span class="fc" id="L36">public class MemberService {</span>
+	
+	private static final String MESSAGE_MEMBER_NOT_FOUND=&quot;Member not found&quot;;
+	private static final String MESSAGE_PREMIUM_NOT_FOUND=&quot;Premium not found&quot;;
+	private static final String MESSAGE_CLAIM_NOT_FOUND=&quot;Claim not found&quot;;
+	private static final String MESSAGE_TOKEN_EXPIRED=&quot;Token is expired&quot;;
+
+	@Autowired
+	private PremiumRepository premiumRepo;
+
+	@Autowired
+	private MemberRepository memberRepo;
+
+	@Autowired
+	private ClaimClient claimClient;
+
+	@Autowired
+	private AuthClient authClient;
+	
+	/**
+	 * This method is for viewing bill details of specific member and policy
+	 * @param memberId - unique string to identify a member
+	 * @param policyId - unique string to identify a policy
+	 * @param token - jwt to verify
+	 * @return bill with member details 
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws PremiumNotFoundException
+	 * @throws TokenExpireException
+	 * @throws MemberNotFoundException
+	 */
+	public MemberPremium viewBills(String memberId, String policyId, String token)
+			throws PremiumNotFoundException, TokenExpireException, IllegalAccessException, InvocationTargetException, MemberNotFoundException {
+<span class="fc" id="L69">		log.info(&quot;START MemberService.viewBills&quot;);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		if (!authClient.authorizeTheRequest(token)) {</span>
+<span class="fc" id="L71">			throw new TokenExpireException(MESSAGE_TOKEN_EXPIRED);</span>
+		}
+		
+<span class="fc" id="L74">		Premium premium = premiumRepo.findByMemberIdAndPolicyId(memberId, policyId);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		if (premium == null) {</span>
+<span class="fc" id="L76">			throw new PremiumNotFoundException(MESSAGE_PREMIUM_NOT_FOUND);</span>
+		} 
+
+<span class="fc" id="L79">		MemberPremium memberPremium = MemberPremium.builder().build();</span>
+<span class="fc" id="L80">		BeanUtils.copyProperties(memberPremium, premium);</span>
+<span class="fc" id="L81">		Optional&lt;Member&gt; member = memberRepo.findById(memberId);</span>
+		
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		if(!member.isPresent()) {</span>
+<span class="fc" id="L84">			throw new MemberNotFoundException(MESSAGE_MEMBER_NOT_FOUND);</span>
+		}
+		
+<span class="fc" id="L87">		memberPremium.setMember(member.get());</span>
+<span class="fc" id="L88">		log.info(&quot;END MemberService.viewBills&quot;);</span>
+<span class="fc" id="L89">		return memberPremium;</span>
+	}
+	
+	/**
+	 * This method is for retrieving status of specific claim
+	 * @param memberId - unique string to identify a member
+	 * @param claimId - unique string to identify a claim
+	 * @param token - jwt to verify
+	 * @return claim status with member details
+	 * @throws MissingRequestHeaderException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws ClaimNotFoundException
+	 * @throws TokenExpireException
+	 * @throws MemberNotFoundException
+	 */
+	public MemberClaim getClaimStatus(String claimId, String memberId, String token)
+			throws MissingRequestHeaderException, ClaimNotFoundException, TokenExpireException, IllegalAccessException,
+			InvocationTargetException, MemberNotFoundException {
+<span class="fc" id="L108">		log.info(&quot;START MemberService.getClaimStatus&quot;);</span>
+<span class="fc" id="L109">		ClaimStatusOutput claimStatusOutput = claimClient.getClaimStatus(claimId, token);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		if (claimStatusOutput == null) {</span>
+<span class="fc" id="L111">			throw new ClaimNotFoundException(MESSAGE_CLAIM_NOT_FOUND);</span>
+		} 
+		
+<span class="fc" id="L114">		MemberClaim memberClaim = MemberClaim.builder().build();</span>
+<span class="fc" id="L115">		BeanUtils.copyProperties(memberClaim, claimStatusOutput);</span>
+<span class="fc" id="L116">		Optional&lt;Member&gt; member = memberRepo.findById(memberId);</span>
+		
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		if(!member.isPresent()) {</span>
+<span class="fc" id="L119">			throw new MemberNotFoundException(MESSAGE_MEMBER_NOT_FOUND);</span>
+		}
+		
+<span class="fc" id="L122">		memberClaim.setMember(member.get());</span>
+<span class="fc" id="L123">		log.info(&quot;END MemberService.getClaimStatus&quot;);</span>
+<span class="fc" id="L124">		return memberClaim;</span>
+	}
+	
+	/**
+	 * This method is for creating a new claim
+	 * @param claim - calim details as request body
+	 * @param token - jwt to verify
+	 * @return new claim created
+	 * @throws PolicyNotFoundException
+	 * @throws TokenExpireException
+	 */
+	public Claim submitClaim(ClaimInput claimInput, String token) throws PolicyNotFoundException, TokenExpireException {
+<span class="fc" id="L136">		log.info(&quot;START MemberService.submitClaim&quot;);</span>
+<span class="fc" id="L137">		log.info(&quot;END MemberService.submitClaim&quot;);</span>
+<span class="fc" id="L138">		return claimClient.submitClaim(claimInput, token);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

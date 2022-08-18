@@ -1,0 +1,6 @@
+projectKey=com.cts:Member-Microservice
+serverUrl=http://localhost:9000
+serverVersion=9.5.0.56709
+dashboardUrl=http://localhost:9000/dashboard?id=com.cts%3AMember-Microservice
+ceTaskId=AYKw3zCFy0r5OvaON9oY
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYKw3zCFy0r5OvaON9oY
